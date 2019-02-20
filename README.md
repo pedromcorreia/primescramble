@@ -1,21 +1,32 @@
 # Primescramble
 
-**TODO: Add description**
+This application is responsible for decode a string encrypted with prime scramble
 
-## Installation
+1. The main feature is decode a string.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `primescramble` to your list of dependencies in `mix.exs`:
+# Application structure
 
-```elixir
-def deps do
-  [
-    {:primescramble, "~> 0.1.0"}
-  ]
-end
-```
+  - Is used basic of elixir for decode the string by the rules.
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/primescramble](https://hexdocs.pm/primescramble).
+ # Example
+
+  - Primescramble.decode("cqil}##$E3.79>AuKEXMMXW_mt8{u")
+
+ # Running the application
+
+ Use the `$ iex -S mix phx.server` to run the application.
+
+ The main function is decode
+
+ # Testing
+
+ Test all suite:
+
+ `$ mix tests`
+
+ # Contributing
+
+ To contribute, please follow some patterns:
+  - Commit messages, documentation and all code related things in english;
+  - Before open pull requests, make sure that `credo` was executed;
 
