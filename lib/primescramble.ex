@@ -3,48 +3,66 @@ defmodule Primescramble do
   Documentation for Primescramble.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Primescramble.hello()
-      :world
-
-  """
-  @alphabet%{"A" => 1, "B" => 2, "C" => 3, "D" => 4, "E" => 5, "F" => 6, "G" => 7, "H" => 8, "I" => 9, "J" => 10, "K" => 11, "L" => 12, "M" => 13, "N" => 14, "O" => 15, "P" => 16, "Q" => 17, "R" => 18, "S" => 19, "T" => 20, "U" => 21, "V" => 22, "W" => 23, "X" => 24, "Y" => 25, "Z" => 26}
-  def decoding(encrypted) do
+  def decode(encrypted) do
     encrypted
     |> String.graphemes()
-    |> Enum.map(fn x ->
+    |> get_decoded()
+    |> elem(1)
+  end
+
+  def get_decoded(graphemes) do
+    graphemes
+    |> Enum.reduce({0, ""}, fn x, acc ->
       <<v::utf8>> = x
-      value_ascii =
-        find_index_alphabet(x)
-        |> Kernel.+(1)
-        |> get_primes()
-        |> List.last()
+      {acc_number, acc_string} = acc
+      prime_number = nextprime(acc_number)
+      decoded_string = sanitaze_chart_ascii(v - prime_number)
+      {prime_number, acc_string <> <<decoded_string::utf8>>}
     end)
   end
 
-  defp find_index_alphabet(word) do
-    Map.get(@alphabet, String.upcase(word))
+  defp sanitaze_chart_ascii(char_value) when char_value < 33 do
+    sanitaze_chart_ascii(char_value + 93)
   end
 
-  def get_primes(n) when n < 2, do: []
-  def get_primes(n), do: Enum.filter(2..n, &is_prime?(&1))
+  defp sanitaze_chart_ascii(char_value) do
+    char_value
+  end
 
-  defp is_prime?(n) when n in [2, 3], do: true
-  defp is_prime?(x) do
-    start_lim = div(x, 2)
-    Enum.reduce(2..start_lim, {true, start_lim}, fn(fac, {is_prime, upper_limit}) ->
-      cond do
-        !is_prime -> {false, fac}
-        fac > upper_limit -> {is_prime, upper_limit}
-        true ->
-          is_prime = rem(x, fac) != 0
-          upper_limit = if is_prime, do: div(x, fac + 1), else: fac
-          {is_prime , upper_limit}
-      end
-    end) |> elem(0)
+  def prime?(2), do: :true
+  def prime?(num) do
+    last = num
+           |> :math.sqrt
+           |> Float.ceil
+           |> trunc
+    notprime = 2..last
+               |> Enum.any?(fn a -> rem(num, a)==0 end)
+    !notprime
+  end
+
+  def nextprime(num) do
+    cond do
+      prime?(num + 1) -> num + 1
+      true -> nextprime(num + 1)
+    end
+  end
+
+  def nthprime(n) do
+    Stream.iterate(2, &nextprime/1)
+    |> Enum.at(n-1)
+  end
+
+  def divisors(num) do
+    do_divisors(num, 1)
+  end
+
+  defp do_divisors(num, n) do
+    cond do
+      prime?(num) -> [num]
+      rem(num, nthprime(n))==0 ->
+        [nthprime(n) |
+          do_divisors(trunc(num/nthprime(n)), n)]
+      true -> do_divisors(num, n+1)
+    end
   end
 end
